@@ -14,6 +14,7 @@ class ArticleController extends AbstractController
     /**
      * @Route("/", name="app_homepage")
      */
+    // Explore! Environments & Config Files
     public function homepage()
     {
         return $this->render('article/homepage.html.twig');

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Nexy\Slack\Client;
 use App\Service\MarkdownHelper;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -15,9 +16,9 @@ class ArticleController extends AbstractController
     /**
      * Currently unused: just showing a controller with a constructor!
      */
-    public function __construct(bool $isDebug)
+    public function __construct(bool $isDebug, Client $slack)
     {
-        dump($isDebug);die;
+        $this->isDebug = $isDebug;
     }
     /**
      * @Route("/", name="app_homepage")
@@ -31,8 +32,15 @@ class ArticleController extends AbstractController
     /**
      * @Route("/news/{slug}", name="article_show")
      */
-    public function show($slug, MarkdownHelper $markdownHelper)
+      public function show($slug, MarkdownHelper $markdownHelper, Client $slack)
     {
+        if ($slug === 'khaaaaaan') {
+            $message = $slack->createMessage()
+                ->from('Khan')
+                ->withIcon(':ghost:')
+                ->setText('Ah, Kirk, my old friend...');
+            $slack->sendMessage($message);
+        }
         $comments = [
             'I ate a normal rock once. It did NOT taste like bacon!',
             'Woohoo! I\'m going on an all-asteroid diet!',
@@ -42,7 +50,7 @@ class ArticleController extends AbstractController
 Spicy **jalapeno bacon** ipsum dolor amet veniam shank in dolore. Ham hock nisi landjaeger cow,
 lorem proident [beef ribs](https://baconipsum.com/) aute enim veniam ut cillum pork chuck picanha. Dolore reprehenderit
 labore minim pork belly spare ribs cupim short loin in. Elit exercitation eiusmod dolore cow
-turkey shank eu pork belly meatball non cupim.
+**turkey** shank eu pork belly meatball non cupim.
 Laboris beef ribs fatback fugiat eiusmod jowl kielbasa alcatra dolore velit ea ball tip. Pariatur
 laboris sunt venison, et laborum dolore minim non meatball. Shankle eu flank aliqua shoulder,
 capicola biltong frankfurter boudin cupim officia. Exercitation fugiat consectetur ham. Adipisicing
@@ -55,12 +63,11 @@ cow est ribeye adipisicing. Pig hamburger pork belly enim. Do porchetta minim ca
 fugiat.
 EOF;
         $articleContent = $markdownHelper->parse($articleContent);
-
         return $this->render('article/show.html.twig', [
             'title' => ucwords(str_replace('-', ' ', $slug)),
-            'articleContent' => $articleContent,
             'slug' => $slug,
             'comments' => $comments,
+            'articleContent' => $articleContent,
         ]);
     }
 

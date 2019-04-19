@@ -18,6 +18,9 @@ services:
         bind:
             $markdownLogger: '@monolog.logger.markdown'
             $isDebug: '%kernel.debug%'
+    
+    # custom aliases for autowiring
+    Nexy\Slack\Client: '@nexy_slack.client'
     App\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
